@@ -1,7 +1,6 @@
 package soccergame;
 
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -10,10 +9,10 @@ public class Scheduler {
 
     private Team[] teams;              //array of object Team in teams 
     private ArrayList<Game> games;     // Arraylist storing games object
-    int noOfTeams;                     //defines the number of teams in the tournament
-    boolean endOfSeason;               // to terminate the season
-    int count = 0;
-    boolean gameFixed;
+    private int noOfTeams;                     //defines the number of teams in the tournament
+    private boolean endOfSeason;               // to terminate the season
+    private int count = 0;
+    private boolean gameFixed;
     private ArrayList<Double> temperatureRecords;
    
 
