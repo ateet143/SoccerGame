@@ -4,13 +4,13 @@ public class SoccerGame {
 
     public static void main(String[] args) {
 
-       
-        Scheduler s1 = new Scheduler(4);
+        Scheduler s1 = new Scheduler();
         s1.addTeams();
         s1.startOfSeason();
-        for (int i = 0; i < s1.getGames().size(); i++) {
-            s1.scoringGoals(s1.getGames().get(i).getTemperature(), s1.getGames().get(i));
 
+        // this foreach loop will execute the scoreGoals method so that each games gets scoring.
+        for (Game game : s1.getGames()) {
+            s1.scoringGoals(game.getTemperature(), game);
         }
 
         s1.displayAllGamesResult();

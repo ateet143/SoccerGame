@@ -7,17 +7,20 @@ import java.util.Scanner;
 
 public class Scheduler {
 
-    private Team[] teams; //array of object Team in teams 
-    private ArrayList<Game> games;  // Arraylist storing games object
-    int noOfTeams;   //defines the number of teams in the tournament
-    boolean endOfSeason;  // to terminate the season
-    int count = 0;
-    boolean gameFixed;
+    private Team[] teams;              //array of object Team in teams 
+    private ArrayList<Game> games;     // Arraylist storing games object
+    private int noOfTeams;                     //defines the number of teams in the tournament
+    private boolean endOfSeason;               // to terminate the season
+    private int count = 0;
+    private boolean gameFixed;
+    private ArrayList<Double> temperatureRecords;
+   
 
     public Scheduler(int noOfTeams) {
         this.noOfTeams = noOfTeams;
         teams = new Team[this.noOfTeams];
         games = new ArrayList<>();
+        temperatureRecords = new ArrayList<>();
     }
 
     public Team[] getTeams() {
@@ -29,7 +32,7 @@ public class Scheduler {
     }
     
      public void addTeams() {   //method helps to add teams and store the each team in array teams.
-        System.out.println("\nAdd Teams");
+         System.out.println("\nAdd Teams");
         int pointer =0;
         for (int i = 0; i < noOfTeams; i++) {
             Scanner sc = new Scanner(System.in);
@@ -75,21 +78,24 @@ public class Scheduler {
          return false;
     }
 
-    public boolean gameFixture(int temperature) {   //it fix the game between the teams # creates the game object and add it to the arraylist
+    public boolean gameFixture(double temperature) {             //it fix the game between the teams # creates the game object and add it to the arraylist
+        int noOfGamesFixed =0;
         Random rnd = new Random();
-        ArrayList<Integer> numbers = new ArrayList<>();  // to store the random number
+        ArrayList<Integer> numbers = new ArrayList<>();       // to store the random number
         for (int i = 0; i < this.noOfTeams; i++) {
             int randomNumber = rnd.nextInt(this.noOfTeams);
-            if (!numbers.contains(randomNumber)) {  // it will not add the random number until it is unique
+            if (!numbers.contains(randomNumber)) {            // it will not add the random number until it is unique
                 numbers.add(randomNumber);
-            } else {   // if repeat then decrease the i variable 
+            } else {                                          // if repeat then decrease the i variable 
                 i--;
             }
         }
         for (int i = 0; i < numbers.size(); i += noOfTeams / 2) {  // this loop will create two games by executing only 2 times.
             games.add(new Game(this.teams[numbers.get(i)], this.teams[numbers.get(i + 1)], temperature));
+            noOfGamesFixed++;
             gameFixed = true;
         }
+        System.out.println(String.format("%d Games scheduled. (1 game for %d teams)",noOfGamesFixed,noOfTeams / 2));
         return gameFixed;
     }
 
@@ -98,12 +104,13 @@ public class Scheduler {
             try {
                 Scanner sc = new Scanner(System.in);
                 System.out.println("\nWhat is today's Temperature (in Fahrenheit)?");
-                int temperature = sc.nextInt();
-                char c = (temperature <= 5) ? 'A' : (temperature > 5 && temperature <= 50) ? 'B' : 'C';
+                double temperature = Double.parseDouble(sc.nextLine());
+                char c = (temperature <= 9) ? 'A' : (temperature > 9 && temperature <= 130) ? 'B' : 'C';
                 switch (c) {
                     case 'A' -> {
                         System.out.println("Too cold to play.");
                         count++;
+                        temperatureRecords.add(temperature);
                         if (count == 3) {
                             System.out.println("Season is over");
                             endOfSeason = true;
@@ -111,37 +118,32 @@ public class Scheduler {
                     }
                     case 'B' -> {
                         gameFixture(temperature);
-                        System.out.println("2 Games scheduled. (1 game for 2 teams)");
+                        temperatureRecords.add(temperature);
                         count = 0; // to reset the value of count
                     }
-                    case 'C' -> {
-                        System.out.println("Too hot to play.");
-                        count++;
-                        if (count == 3) {   //if three consecutive false to end the season. 
-                            System.out.println("Season is over");
-                            endOfSeason = true;
-                        }
-                    }
                     default ->
-                        System.out.println("Invalid number");
+                        System.out.println("Temperature cannot be more than 130F,Enter Again");
                 }
-            } catch (Exception e) {
-                System.out.println("Please input digit only");
+            }catch (NumberFormatException ex) {
+                System.out.println("-->Please Enter Digit Only<--");
+            }
+            catch(Exception ex){
+                 System.out.println("Exception error:" + ex);
             }
         }
     }
 
-    public void scoringGoals(int temperature, Game game) {  // to randomly generate the scoring for the teams in a game
+    public void scoringGoals(double temperature, Game game) {  // to randomly generate the scoring for the teams in a game
         Random rnd = new Random();
-        int maxGoal = (temperature < 0) ? 0 : temperature / 10;
+        double maxGoal = (temperature < 0) ? 0 : temperature / 10;
         int teamAScore, teamBScore;
 
         if (maxGoal >= 3) {   // if the temperature is higher it will produce more goals
-            teamAScore = rnd.nextInt(maxGoal) + 1;
-            teamBScore = rnd.nextInt(maxGoal) + 1;
+            teamAScore = rnd.nextInt((int)maxGoal) + 1;
+            teamBScore = rnd.nextInt((int)maxGoal) + 1;
         } else {
-            teamAScore = rnd.nextInt(maxGoal);
-            teamBScore = rnd.nextInt(maxGoal);
+            teamAScore = rnd.nextInt((int)maxGoal);
+            teamBScore = rnd.nextInt((int)maxGoal);
         }
         //To set the Score of the teams
         game.setTeamAscore(teamAScore);
@@ -171,17 +173,18 @@ public class Scheduler {
         } else {
             System.out.println("\n####GAMES RESULT####");
             String gameNo = "Game", teamA = "Home Team", teamB = "Away Team", temperature = "Temperature";
-            int a, b, c, d;
+            int a, b, c;
+            double d;
             System.out.println(String.format("%s %12s %12s %12s", gameNo, teamA, teamB, temperature));
-            for (int i = 0; i < this.games.size(); i++) {
-                a = this.games.get(i).getGameNumber();
-                b = this.games.get(i).getTeamAscore();
-                c = this.games.get(i).getTeamBscore();
-                d = this.games.get(i).getTemperature();
-                System.out.println(String.format("%2d %10d %12d %12d", a, b, c, d));
+            for(Game game: games){
+                a = game.getGameNumber();
+                b = game.getTeamAscore();
+                c = game.getTeamBscore();
+                d = game.getTemperature();
+                System.out.println(String.format("%2d %10d %12d %12.2f", a, b, c, d));
             }
         }
-
+            System.out.println(getTemperatureData());
     }
 
     public void displayTeamResult() {
@@ -208,5 +211,23 @@ public class Scheduler {
             }
         }
 
+    }
+    
+    public String getTemperatureData(){
+        double minValue = Integer.MAX_VALUE;
+        double maxValue = Integer.MIN_VALUE;
+        double sum =0;
+        double averageTemperature =0;
+        for(double temperature:temperatureRecords ){
+             if(minValue > temperature){
+                minValue = temperature;
+            }
+            else if(maxValue < temperature){
+                maxValue = temperature;
+            }
+           sum +=  temperature;
+        }
+        averageTemperature = sum/temperatureRecords.size();
+        return String.format("Minimum Temperature:%.2f" +"\nMaximum Temperature:%.2f" + "\nAverage Temperature:%.2f",minValue,maxValue,averageTemperature );
     }
 }

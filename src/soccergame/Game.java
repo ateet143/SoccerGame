@@ -6,12 +6,11 @@ public class Game {
     private Team teamB;
     private int teamAscore;
     private int teamBscore;
-    private int temperature;
-    static int counter;
-    boolean status;
-   
+    private double temperature;
+    private static int counter;
+  
 
-    public Game(Team teamA, Team teamB, int temperature) {
+    public Game(Team teamA, Team teamB, double temperature) {
         counter++;
         gameNumber = counter;
         this.teamA = teamA;
@@ -39,7 +38,7 @@ public class Game {
         return teamBscore;
     }
 
-    public int getTemperature() {
+    public double getTemperature() {
         return temperature;
     }
 
